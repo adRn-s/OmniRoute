@@ -99,31 +99,10 @@ CORS_ALLOWED_ORIGINS="http://localhost:5173, http://localhost:3000"
 `http://localhost:3000` ਅਤੇ `http://localhost:3000/` ਬਰਾਬਰ ਹਨ। ਇਹੀ CSV
 ਬਿਨਾਂ ਰੀਸਟਾਰਟ ਕੀਤੇ ਰਨਟਾਈਮ ਦੌਰਾਨ **Dashboard → Security → CORS Allowed Origins** ਵਿੱਚ ਸੈੱਟ ਕੀਤਾ ਜਾ ਸਕਦਾ ਹੈ।
 
-## API ਕੁੰਜੀਆਂ ਬਨਾਮ ਕੁਕੀ ਸੈਸ਼ਨ
+## API ਕੁੰਜੀਆਂ ਬਨਾਮ ਕੂਕੀ ਸੈਸ਼ਨ
 
-- **Bearer / `x-api-key` (`/v1/*` ਇਨਫ਼ਰੈਂਸ ਸਤਹ):** ਬ੍ਰਾਊਜ਼ਰ ਇਹਨਾਂ ਨੂੰ ਕਦੇ ਵੀ
-  ਆਪਣੇ ਆਪ ਅਟੈਚ ਨਹੀਂ ਕਰਦੇ। ਇੱਥੇ CORS ਕੋਈ ਅਰਥਪੂਰਨ ਰੁਕਾਵਟ ਨਹੀਂ ਹੈ — API ਕੁੰਜੀ ਹੀ
-  ਰੁਕਾਵਟ ਹੈ — ਇਸੇ ਕਰਕੇ ਇਸ ਸਤਹ ਨੂੰ ਜਾਣ-ਬੁੱਝ ਕੇ ਆਗਿਆਕਾਰੀ ਰੱਖਿਆ ਗਿਆ ਹੈ ਤਾਂ ਜੋ ਬ੍ਰਾਊਜ਼ਰ ਅਤੇ
-  Electron ਕਲਾਇੰਟ ਉਹ ਜਵਾਬ ਪੜ੍ਹ ਸਕਣ ਜਿਨ੍ਹਾਂ ਦੇ ਉਹ ਪਹਿਲਾਂ ਹੀ ਹੱਕਦਾਰ ਹਨ।
-  ਢਿੱਲਾ ਕੀਤਾ ਗਿਆ ਈਕੋ ਹੈਡਰ ਦੀ ਸਿਰਫ਼ ਮੌਜੂਦਗੀ ਨੂੰ ਨਹੀਂ, ਸਗੋਂ ਪ੍ਰਮਾਣਿਤ ਕੁੰਜੀ ਨੂੰ ਮੰਨਦਾ ਹੈ:
-  ਜਦੋਂ `REQUIRE_API_KEY=false` ਕਿਸੇ ਬੇਨਤੀ ਨੂੰ ਅਗਿਆਤ ਤੌਰ 'ਤੇ ਸੇਵਾ ਦਿੰਦਾ ਹੈ, ਤਾਂ ਉਸਦਾ ਸਫਲ
-  ਜਵਾਬ fail-closed ਮਨਜ਼ੂਰ-ਸੂਚੀ ਨੂੰ ਕਾਇਮ ਰੱਖਦਾ ਹੈ। ਪ੍ਰਮਾਣੀਕਰਨ ਅਸਵੀਕਾਰ (401) ਪੜ੍ਹਨਯੋਗ ਰਹਿੰਦੇ
-  ਹਨ ਤਾਂ ਜੋ ਕਲਾਇੰਟ ਰੱਦ ਕੀਤੀ ਜਾਂ ਗਲਤ ਟਾਈਪ ਕੀਤੀ ਕੁੰਜੀ ਦਿਖਾ ਸਕਣ (#5242): pipeline ਦਾ ਆਪਣਾ
-  401 ਈਕੋ ਨੂੰ ਕਾਇਮ ਰੱਖਦਾ ਹੈ, ਅਤੇ ਜੋ ਰੂਟ pipeline ਵੱਲੋਂ ਬੇਨਤੀ ਨੂੰ ਅਗਿਆਤ ਵਜੋਂ ਸੇਵਾ ਦੇਣ ਤੋਂ
-  ਬਾਅਦ ਖ਼ੁਦ ਕੁੰਜੀ ਨੂੰ ਅਸਵੀਕਾਰ ਕਰਦਾ ਹੈ (ਮੈਨੇਜਮੈਂਟ ਪ੍ਰਮਾਣੀਕਰਨ ਸੰਰਚਿਤ ਹੋਣ 'ਤੇ `/v1/models`
-  ਅਤੇ `/v1beta/models`, ਮਾਲਕ-ਸੀਮਤ `/v1/files`, `/v1/batches`, `/v1/media`,
-  `/v1/session-leases` ਅਤੇ auto-combo ਉਮੀਦਵਾਰ ਰੂਟ), ਉਹ `credentialRejectionHeaders()`
-  ਰਾਹੀਂ ਉਸ 401 ਵਿੱਚ ਈਕੋ ਜੋੜਦਾ ਹੈ। ਈਕੋ ਇਸ ਗੱਲ 'ਤੇ ਨਿਰਭਰ ਨਹੀਂ ਕਰਦਾ ਕਿ ਰੂਟ ਨੇ ਉਨ੍ਹਾਂ ਵਿੱਚੋਂ ਕਿਹੜਾ
-  ਜਾਂਚਿਆ, ਸਗੋਂ ਇਸ 'ਤੇ ਕਿ ਬੇਨਤੀ ਵਿੱਚ ਕ੍ਰੈਡੈਂਸ਼ਲ ਹੈਡਰ (`Authorization`, `x-api-key`,
-  `x-goog-api-key` ਜਾਂ `auth_token` ਕੁਕੀ) ਮੌਜੂਦ ਹੈ ਜਾਂ ਨਹੀਂ, ਅਤੇ ਇਸਨੂੰ ਕਦੇ ਵੀ
-  `Access-Control-Allow-Credentials` ਨਾਲ ਨਹੀਂ ਜੋੜਿਆ ਜਾਂਦਾ; ਬਾਡੀ ਇੱਕ ਸਥਿਰ ਗਲਤੀ ਲਿਫ਼ਾਫ਼ਾ ਹੈ।
-  `requireManagementAuth()` ਦੁਆਰਾ ਸੁਰੱਖਿਅਤ `/api/v1/` ਹੇਠਲੇ ਮੈਨੇਜਮੈਂਟ ਰੂਟ
-  (`/api/v1/management/*`, `/api/v1/registered-keys`) ਈਕੋ ਨਹੀਂ ਜੋੜਦੇ:
-  `REQUIRE_API_KEY=false` ਹੋਣ 'ਤੇ ਉਨ੍ਹਾਂ ਦੇ 401/403 ਕ੍ਰਾਸ-ਓਰਿਜਨ ਤੋਂ ਪੜ੍ਹੇ ਨਹੀਂ ਜਾ ਸਕਦੇ।
-- **ਕੁਕੀ ਸੈਸ਼ਨ (ਡੈਸ਼ਬੋਰਡ):** fail-closed ਡਿਫੌਲਟ **ਅਤੇ**
-  ਸਾਂਝੇ ਪਾਥ ਉੱਤੇ `Access-Control-Allow-Credentials` ਦੀ ਗੈਰਹਾਜ਼ਰੀ ਦੁਆਰਾ ਸੁਰੱਖਿਅਤ ਹੈ। ਪ੍ਰਬੰਧਨ/ਡੈਸ਼ਬੋਰਡ
-  ਓਰਿਜਿਨਾਂ ਨੂੰ ਕਿਸੇ ਵੀ ਆਗਿਆਕਾਰੀ ਸੰਰਚਨਾ ਤੋਂ ਬਾਹਰ ਰੱਖੋ; ਉਹਨਾਂ ਦਾ ਬਿਲਕੁਲ
-  fail-closed ਰਹਿਣਾ ਲਾਜ਼ਮੀ ਹੈ।
+- **Bearer / `x-api-key` (the `/v1/*` inference surface):** ਬ੍ਰਾਊਜ਼ਰ ਇਹਨਾਂ ਨੂੰ ਕਦੇ ਵੀ ਆਪਣੇ ਆਪ ਨੱਥੀ ਨਹੀਂ ਕਰਦੇ। CORS is not a meaningful barrier here — the API key is the barrier — which is why that surface is intentionally permissive so browser and Electron clients can read responses they are already entitled to. The relaxed echo follows the validated key, not the mere presence of the header: when `REQUIRE_API_KEY=false` serves a request anonymously, its successful response keeps the fail-closed allowlist. Auth rejections (401) stay readable so clients can surface a revoked or mistyped key (#5242): the pipeline's own 401 keeps the echo, and a route that refuses the key itself after the pipeline served it as anonymous (`/v1/models` and `/v1beta/models` with management auth configured, the owner-scoped `/v1/files`, `/v1/batches`, `/v1/media`, `/v1/session-leases` and auto-combo candidate routes) adds the echo to that 401 via `credentialRejectionHeaders()`. The echo is keyed on the request carrying a credential header (`Authorization`, `x-api-key`, `x-goog-api-key` or the `auth_token` cookie), not on which of them the route checked, and is never paired with `Access-Control-Allow-Credentials`; ਸਰੀਰ ਇੱਕ ਸਥਿਰ ਗਲਤੀ ਵਾਲਾ ਲਿਫਾਫਾ ਹੈ। Management routes under `/api/v1/` guarded by `requireManagementAuth()` (`/api/v1/management/*`, `/api/v1/registered-keys`, `/api/v1/providers/[provider]/limits`, `/api/v1/accounts/[id]/limits`, `/api/v1/issues/report`) do not add the echo: with `REQUIRE_API_KEY=false` their 401/403 is not readable cross-origin.
+- **ਕੂਕੀ ਸੈਸ਼ਨ (ਡੈਸ਼ਬੋਰਡ):** ਫੇਲ-ਬੰਦ ਡਿਫਾਲਟ ਦੁਆਰਾ ਸੁਰੱਖਿਅਤ** ਅਤੇ** ਸਾਂਝੇ ਮਾਰਗ 'ਤੇ `Access-Control-Allow-Credentials` ਦੀ ਅਣਹੋਂਦ ਦੁਆਰਾ. management/dashboard ਮੂਲ ਨੂੰ ਕਿਸੇ ਵੀ ਇਜਾਜ਼ਤ ਦੇਣ ਵਾਲੀ ਸੰਰਚਨਾ ਤੋਂ ਬਾਹਰ ਰੱਖੋ; ਉਹਨਾਂ ਨੂੰ ਬਿਲਕੁਲ ਫੇਲ-ਬੰਦ ਰਹਿਣਾ ਚਾਹੀਦਾ ਹੈ।
 
 ## WebSocket ਹੈਂਡਸ਼ੇਕ (`/v1/responses`, `/v1/ws`)
 

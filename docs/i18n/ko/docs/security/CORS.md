@@ -99,29 +99,10 @@ CORS_ALLOWED_ORIGINS="http://localhost:5173, http://localhost:3000"
 않고도 **대시보드 → 보안 → CORS 허용 출처**에서 런타임에 동일한 CSV를 설정할 수
 있습니다.
 
-## API 키와 쿠키 세션 비교
+## API 키와 쿠키 세션
 
-- **Bearer / `x-api-key`(`/v1/*` 추론 인터페이스):** 브라우저는 이를 자동으로
-  첨부하지 않습니다. 여기서 CORS는 유의미한 장벽이 아닙니다. API 키가 장벽 역할을
-  합니다. 따라서 이 인터페이스는 브라우저 및 Electron 클라이언트가 이미 접근 권한이
-  있는 응답을 읽을 수 있도록 의도적으로 허용 범위가 넓게 설정되어 있습니다.
-  완화된 출처 반환은 헤더가 존재하는지 여부가 아니라 검증된 키를 따릅니다. `REQUIRE_API_KEY=false`로
-  요청이 익명으로 처리되면 해당 요청의 성공 응답에는 기본적으로 접근을 차단하는 허용 목록이 그대로
-  적용됩니다. 인증 거부(401)는 클라이언트가 폐기되었거나 잘못 입력된 키를 사용자에게 알릴 수 있도록
-  읽을 수 있는 상태로 유지됩니다(#5242). 파이프라인 자체의 401은 출처 반환을 유지하며, 파이프라인이
-  익명으로 처리한 뒤 라우트가 직접 키를 거부하는 경우(관리 인증이 구성된 경우의 `/v1/models` 및
-  `/v1beta/models`, 소유자 범위의 `/v1/files`, `/v1/batches`, `/v1/media`, `/v1/session-leases`
-  및 auto-combo 후보 라우트)에는 `credentialRejectionHeaders()`를 통해 해당 401에 출처 반환을
-  추가합니다. 출처 반환 여부는 라우트가 그중 어느 것을 검사했는지가 아니라 요청에 자격 증명 헤더
-  (`Authorization`, `x-api-key`, `x-goog-api-key` 또는 `auth_token` 쿠키)가 포함되어 있는지에
-  따라 결정되며, `Access-Control-Allow-Credentials`와 함께 사용되는 일은 없습니다. 본문은 고정된
-  오류 엔벨로프입니다. `requireManagementAuth()`로 보호되는 `/api/v1/` 하위의 관리 라우트
-  (`/api/v1/management/*`, `/api/v1/registered-keys`)는 출처 반환을 추가하지 않습니다.
-  `REQUIRE_API_KEY=false`인 경우 이 라우트들의 401/403은 교차 출처에서 읽을 수 없습니다.
-- **쿠키 세션(대시보드):** 기본적으로 접근을 차단하는 설정과 공유 경로에
-  `Access-Control-Allow-Credentials`가 없다는 점에 의해 보호됩니다. 관리/대시보드
-  출처를 허용 범위가 넓은 구성에 포함하지 마세요. 해당 출처는 반드시 기본적으로
-  접근이 차단되는 상태를 그대로 유지해야 합니다.
+- **Bearer / `x-api-key` (the `/v1/*` inference surface):** 브라우저는 이를 자동으로 첨부하지 않습니다. CORS is not a meaningful barrier here — the API key is the barrier — which is why that surface is intentionally permissive so browser and Electron clients can read responses they are already entitled to. The relaxed echo follows the validated key, not the mere presence of the header: when `REQUIRE_API_KEY=false` serves a request anonymously, its successful response keeps the fail-closed allowlist. Auth rejections (401) stay readable so clients can surface a revoked or mistyped key (#5242): the pipeline's own 401 keeps the echo, and a route that refuses the key itself after the pipeline served it as anonymous (`/v1/models` and `/v1beta/models` with management auth configured, the owner-scoped `/v1/files`, `/v1/batches`, `/v1/media`, `/v1/session-leases` and auto-combo candidate routes) adds the echo to that 401 via `credentialRejectionHeaders()`. The echo is keyed on the request carrying a credential header (`Authorization`, `x-api-key`, `x-goog-api-key` or the `auth_token` cookie), not on which of them the route checked, and is never paired with `Access-Control-Allow-Credentials`; 본문은 고정된 오류 봉투입니다. Management routes under `/api/v1/` guarded by `requireManagementAuth()` (`/api/v1/management/*`, `/api/v1/registered-keys`, `/api/v1/providers/[provider]/limits`, `/api/v1/accounts/[id]/limits`, `/api/v1/issues/report`) do not add the echo: with `REQUIRE_API_KEY=false` their 401/403 is not readable cross-origin.
+- **쿠키 세션(대시보드):** 장애 시 기본값으로 보호됨** 그리고** 공유 경로에 `Access-Control-Allow-Credentials` 가 없기 때문입니다. 허용되는 구성에서 management/dashboard 원본을 유지하십시오. 정확히 장애가 발생하지 않은 상태로 유지되어야 합니다.
 
 ## WebSocket 핸드셰이크 (`/v1/responses`, `/v1/ws`)
 
